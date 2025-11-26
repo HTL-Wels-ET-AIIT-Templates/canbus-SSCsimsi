@@ -80,7 +80,7 @@ int main(void)
 
 	// ToDo: set up CAN peripherals
 
-
+	canInit();
 
 	/* Infinite loop */
 	while (1)
@@ -89,11 +89,11 @@ int main(void)
 		HAL_Delay(10);
 
 		// ToDo: send data over CAN when user button has been pressed
-
+		canSendTask();
 
 
 		// ToDo: check if data has been received
-
+		canReceiveTask();
 
 		// display timer
 		int cnt = HAL_GetTick();

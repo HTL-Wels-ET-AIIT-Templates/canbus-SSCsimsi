@@ -21,7 +21,7 @@
 /* Private define ------------------------------------------------------------*/
 
 // ToDo: korrekte Prescaler-Einstellung
-#define   CAN1_CLOCK_PRESCALER    1000
+#define   CAN1_CLOCK_PRESCALER 16
 
 /* Private variables ---------------------------------------------------------*/
 CAN_HandleTypeDef     canHandle;
@@ -70,6 +70,7 @@ void canInit(void) {
 	printf("Bit-Timing-Register: 0x%lx", CAN1->BTR);
 
 	// ToDo (2): set up DS18B20 (temperature sensor)
+	tempSensorInit();
 
 }
 
@@ -79,22 +80,41 @@ void canInit(void) {
  * @return none
  */
 void canSendTask(void) {
-	// ToDo declare the required variables
+	// ToDo declare the required variables^
+	CAN_TxHeaderTypeDef TxHeader;
 	static unsigned int sendCnt = 0;
-
-
+	static float temp = 0;
+	uint8_t TxData[8];
+	uint32_t TxMailbox;
+	TxHeader.StdId = 0x1AB;      // 11-bit ID
+	TxHeader.IDE   = CAN_ID_STD; // Standard frame
+	TxHeader.RTR   = CAN_RTR_DATA;
+	TxHeader.DLC   = 2;          // Payload length
+	TxHeader.TransmitGlobalTime = DISABLE;
 
 	// ToDo (2): get temperature value
 
+	temp=tempSensorGetTemperature();
 
 
 	// ToDo prepare send data
 
-
+	TxData[0]=0x1AC;
+	TxData[1]=0x01;
 
 	// ToDo send CAN frame
+	// check if mailboxes are empty (last transmission was successful)
+	if (HAL_CAN_GetTxMailboxesFreeLevel(&canHandle) != 3 ) {
+			// mail box not empty
+	}
 
 
+
+	if (HAL_CAN_AddTxMessage(&canHandle, &TxHeader, TxData, &TxMailbox) != HAL_OK)
+	{
+		// Transmission request failed
+		Error_Handler();
+	}
 
 	// ToDo display send counter and send data
 
@@ -109,17 +129,24 @@ void canSendTask(void) {
  */
 void canReceiveTask(void) {
 	static unsigned int recvCnt = 0;
-
-
+	CAN_RxHeaderTypeDef RxHeader;
+	uint8_t RxData[8];
 
 	// ToDo: check if CAN frame has been received
 
-
+	// check if frame has been received
+	if (HAL_CAN_GetRxFifoFillLevel(&canHandle, CAN_RX_FIFO0) == 0) {
+	// no frame received
+	}
 
 
 	// ToDo: Get CAN frame from RX fifo
 
-
+	if (HAL_CAN_GetRxMessage(&canHandle, CAN_RX_FIFO0, &RxHeader, RxData) == HAL_OK)
+	{
+	    // RxHeader contains ID, DLC, etc.
+	    // RxData contains up to 8 bytes
+	}
 
 	// ToDo: Process received CAN Frame (extract data)
 
@@ -226,12 +253,12 @@ static void initCanPeripheral(void) {
 	}
 
 	/*##-4- Activate CAN RX notification #######################################*/
-//	HAL_NVIC_EnableIRQ(CAN1_RX0_IRQn);
-//	if (HAL_CAN_ActivateNotification(&canHandle, CAN_IT_RX_FIFO0_MSG_PENDING) != HAL_OK)
-//	{
-//		/* Notification Error */
-//		Error_Handler();
-//	}
+	//	HAL_NVIC_EnableIRQ(CAN1_RX0_IRQn);
+	//	if (HAL_CAN_ActivateNotification(&canHandle, CAN_IT_RX_FIFO0_MSG_PENDING) != HAL_OK)
+	//	{
+	//		/* Notification Error */
+	//		Error_Handler();
+	//	}
 
 }
 
