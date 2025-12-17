@@ -35,7 +35,7 @@
 /* Private define ------------------------------------------------------------*/
 
 /* Private variables ---------------------------------------------------------*/
-
+static int t10ms=0;
 /* Private function prototypes -----------------------------------------------*/
 static int GetUserButtonPressed(void);
 static int GetTouchState (int *xCoord, int *yCoord);
@@ -46,6 +46,8 @@ static int GetTouchState (int *xCoord, int *yCoord);
 void SysTick_Handler(void)
 {
 	HAL_IncTick();
+	t10ms++;
+
 }
 
 /**
@@ -86,10 +88,16 @@ int main(void)
 	while (1)
 	{
 		//execute main loop every 100ms
-		HAL_Delay(10);
-
+		if(t10ms>10){
+			t10ms=0;
 		// ToDo: send data over CAN when user button has been pressed
-		canSendTask();
+
+		if(GetUserButtonPressed()){
+
+			canSendTask();
+
+		}
+
 
 
 		// ToDo: check if data has been received
@@ -108,7 +116,7 @@ int main(void)
 			LCD_FillCircle(x, y, 5);
 		}
 
-
+		}
 	}
 }
 

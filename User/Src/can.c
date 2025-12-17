@@ -86,7 +86,7 @@ void canSendTask(void) {
 	static float temp = 0;
 	uint8_t TxData[8];
 	uint32_t TxMailbox;
-	TxHeader.StdId = 0x1AB;      // 11-bit ID
+	TxHeader.StdId = 0x123;      // 11-bit ID
 	TxHeader.IDE   = CAN_ID_STD; // Standard frame
 	TxHeader.RTR   = CAN_RTR_DATA;
 	TxHeader.DLC   = 2;          // Payload length
@@ -99,8 +99,8 @@ void canSendTask(void) {
 
 	// ToDo prepare send data
 
-	TxData[0]=0x1AC;
-	TxData[1]=0x01;
+	TxData[0]=0xAC;
+	TxData[1]=0x51;
 
 	// ToDo send CAN frame
 	// check if mailboxes are empty (last transmission was successful)
@@ -113,12 +113,15 @@ void canSendTask(void) {
 	if (HAL_CAN_AddTxMessage(&canHandle, &TxHeader, TxData, &TxMailbox) != HAL_OK)
 	{
 		// Transmission request failed
+		LCD_SetPrintPosition(14,1);
+		printf("NOPE");
 		Error_Handler();
 	}
 
 	// ToDo display send counter and send data
 
-
+	LCD_SetPrintPosition(9,15);
+	printf("%i",TxData[0]);
 
 }
 
@@ -149,7 +152,8 @@ void canReceiveTask(void) {
 	}
 
 	// ToDo: Process received CAN Frame (extract data)
-
+	LCD_SetPrintPosition(15,15);
+	printf("%i",RxData[0]);
 
 
 	// ToDo display recv counter and recv data
