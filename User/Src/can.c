@@ -101,6 +101,7 @@ void canSendTask(void) {
 
 	TxData[0]=0xAC;
 	TxData[1]=0x51;
+	TxData[2]=temp;
 
 	// ToDo send CAN frame
 	// check if mailboxes are empty (last transmission was successful)
@@ -114,14 +115,16 @@ void canSendTask(void) {
 	{
 		// Transmission request failed
 		LCD_SetPrintPosition(14,1);
-		printf("NOPE");
+		printf("NOPE  ");
 		Error_Handler();
 	}
 
 	// ToDo display send counter and send data
+	for(int i=0;i<3;i++){
+		LCD_SetPrintPosition(9+i,15);
+		printf("%i     ",TxData[i]);
+	}
 
-	LCD_SetPrintPosition(9,15);
-	printf("%i",TxData[0]);
 
 }
 
@@ -152,8 +155,12 @@ void canReceiveTask(void) {
 	}
 
 	// ToDo: Process received CAN Frame (extract data)
-	LCD_SetPrintPosition(15,15);
-	printf("%i",RxData[0]);
+
+	for(int i=0;i<3;i++){
+		LCD_SetPrintPosition(15+i,15);
+		printf("%i      ",RxData[i]);
+	}
+
 
 
 	// ToDo display recv counter and recv data
@@ -203,7 +210,7 @@ static void initCanPeripheral(void) {
 	canHandle.Init.AutoRetransmission = ENABLE;
 	canHandle.Init.ReceiveFifoLocked = DISABLE;
 	canHandle.Init.TransmitFifoPriority = DISABLE;
-	canHandle.Init.Mode = CAN_MODE_NORMAL;
+	canHandle.Init.Mode = CAN_MODE_LOOPBACK;
 	canHandle.Init.SyncJumpWidth = CAN_SJW_1TQ;
 
 	// CAN Baudrate
